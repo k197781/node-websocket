@@ -4,13 +4,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const PORT = process.env.PORT || 3000;
+const sio = require('./lib/sio')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
 var http = require('http').Server(app);
-const io = require('socket.io')(http);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -41,12 +41,7 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-io.on('connection',function(socket){
-  socket.on('message',function(msg){
-      console.log('message: ' + msg);
-      io.emit('message', msg);
-  });
-});
+sio(http)
 
 http.listen(PORT, function(){
   console.log('server listening. Port:' + PORT);
