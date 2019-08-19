@@ -3,11 +3,14 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const PORT = process.env.PORT || 3000;
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+var http = require('http').Server(app);
+const io = require('socket.io')(http);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -36,6 +39,17 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+io.on('connection',function(socket){
+  socket.on('message',function(msg){
+      console.log('message: ' + msg);
+      io.emit('message', msg);
+  });
+});
+
+http.listen(PORT, function(){
+  console.log('server listening. Port:' + PORT);
 });
 
 module.exports = app;
